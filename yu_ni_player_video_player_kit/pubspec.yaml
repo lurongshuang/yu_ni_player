@@ -1,0 +1,20 @@
+name: yu_ni_player_video_player_kit
+description: Flutter official video_player engine implementation for yu_ni_player.
+version: 1.0.0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  yu_ni_player_base:
+    path: ../yu_ni_player_base
+  video_player: ^2.11.1
+  video_player_win: ^3.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
