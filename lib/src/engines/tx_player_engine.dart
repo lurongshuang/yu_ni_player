@@ -76,7 +76,7 @@ class TXPlayerEngine extends YuNiPlayerEngine {
       txConfig.headers = config.headers;
     }
     await _controller!.setConfig(txConfig);
-    await _controller!.setIsAutoPlay(isAutoPlay: false);
+    await _controller!.setAutoPlay(isAutoPlay: false);
     await _controller!.enableHardwareDecode(config.hardwareAcceleration);
     await _controller!.setRenderMode(FTXPlayerRenderMode.ADJUST_RESOLUTION);
     await _controller!.startVodPlay(_resolveUrl());
@@ -194,7 +194,7 @@ class TXPlayerEngine extends YuNiPlayerEngine {
   // ── 内部事件处理 ──────────────────────────────────────────────
 
   void _onPlayerEvent(dynamic event) {
-    final evtId = event[TXVodPlayEvent.EVT_ID] as int?;
+    final evtId = event["event"] as int?;
     if (evtId == null) return;
 
     switch (evtId) {
