@@ -1,0 +1,22 @@
+name: yu_ni_player
+description: Base package for YuNiPlayer — unified video player API, LRU pool, fullscreen widget, and custom controls. Zero player SDK dependencies.
+version: 1.0.0
+repository: https://github.com/lurongshuang/yu_ni_player/tree/main/packages/yu_ni_player
+issue_tracker: https://github.com/lurongshuang/yu_ni_player/issues
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  glados: ^1.1.7
+
+flutter:
+  uses-material-design: true

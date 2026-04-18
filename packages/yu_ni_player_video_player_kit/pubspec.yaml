@@ -1,0 +1,24 @@
+name: yu_ni_player_video_player_kit
+description: VideoPlayerKitEngine for YuNiPlayer — based on Flutter official video_player package. Supports iOS, Android, macOS, Windows, Web.
+version: 1.0.0
+repository: https://github.com/lurongshuang/yu_ni_player/tree/main/packages/yu_ni_player_video_player_kit
+issue_tracker: https://github.com/lurongshuang/yu_ni_player/issues
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  yu_ni_player:
+    path: ../yu_ni_player
+  video_player: ^2.9.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
