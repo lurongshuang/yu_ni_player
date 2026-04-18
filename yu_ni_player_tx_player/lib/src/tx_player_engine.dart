@@ -64,8 +64,9 @@ class TXPlayerEngine extends YuNiPlayerEngine {
     instanceCode.value = _controller.hashCode;
 
     final txConfig = FTXVodPlayConfig();
-    if (config.headers.isNotEmpty) {
-      txConfig.headers = config.headers;
+    final mergedHeaders = videoSource.mergedHeaders(config.headers);
+    if (mergedHeaders.isNotEmpty) {
+      txConfig.headers = mergedHeaders;
     }
     await _controller!.setConfig(txConfig);
     await _controller!.setAutoPlay(isAutoPlay: false);

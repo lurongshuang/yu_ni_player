@@ -72,8 +72,8 @@ class MediaKitEngine extends YuNiPlayerEngine {
     _subscribeToEvents();
 
     final media = videoSource.file != null
-        ? Media(videoSource.file!.path, httpHeaders: config.headers)
-        : Media(videoSource.url!, httpHeaders: config.headers);
+        ? Media(videoSource.file!.path, httpHeaders: videoSource.mergedHeaders(config.headers))
+        : Media(videoSource.url!, httpHeaders: videoSource.mergedHeaders(config.headers));
 
     await _player!.open(media, play: false);
   }

@@ -28,7 +28,7 @@ class VideoPlayerKitEngine extends YuNiPlayerEngine {
     }
     return VideoPlayerController.networkUrl(
       Uri.parse(videoSource.url!),
-      httpHeaders: config.headers,
+      httpHeaders: videoSource.mergedHeaders(config.headers),
     );
   }
 

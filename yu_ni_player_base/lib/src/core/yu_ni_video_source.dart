@@ -4,6 +4,10 @@ import 'dart:io';
 ///
 /// 用于描述一个视频的来源信息，包括网络 URL 或本地文件、
 /// 尺寸元数据、封面图等。[id] 字段作为对象池（YuNiPlayerPool）的 key。
+///
+/// [headers] 是视频源级别的 HTTP 请求头，用于防盗链签名、CDN token、
+/// 鉴权等与 URL 绑定的场景。引擎初始化时会将其与 [YuNiEngineConfig.headers]
+/// 合并，[headers] 中的同名 key 优先级更高。
 class YuNiVideoSource {
   const YuNiVideoSource({
     required this.id,
@@ -13,6 +17,7 @@ class YuNiVideoSource {
     this.height,
     this.aspectRatio,
     this.cover,
+    this.headers = const {},
   })  : assert(
           url != null || file != null,
           'YuNiVideoSource requires either url or file',
@@ -40,6 +45,13 @@ class YuNiVideoSource {
   /// 封面图 URL 或本地路径（可选）
   final String? cover;
 
+  /// 视频源级别的 HTTP 请求头（默认空 Map）
+  ///
+  /// 用于防盗链签名、CDN token、鉴权等与 URL 绑定的场景。
+  /// 引擎初始化时会与 [YuNiEngineConfig.headers] 合并，
+  /// 本字段中的同名 key 优先级更高。
+  final Map<String, String> headers;
+
   /// 是否横屏。
   ///
   /// - [aspectRatio] 为 null 时默认返回 `true`（横屏）
@@ -48,5 +60,14 @@ class YuNiVideoSource {
   bool get isLandscape {
     if (aspectRatio == null) return true;
     return aspectRatio! > 1.0;
+  }
+
+  /// 将 [YuNiEngineConfig.headers] 与本视频源的 [headers] 合并。
+  ///
+  /// 合并规则：config.headers 作为基础，videoSource.headers 覆盖同名 key。
+  Map<String, String> mergedHeaders(Map<String, String> configHeaders) {
+    if (configHeaders.isEmpty) return headers;
+    if (headers.isEmpty) return configHeaders;
+    return {...configHeaders, ...headers};
   }
 }
