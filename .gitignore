@@ -26,10 +26,3 @@ example/ios/Pods/
 example/ios/Podfile.lock
 example/macos/Pods/
 example/macos/Podfile.lock
-
-# Packages build artifacts
-packages/*/build/
-packages/*/.dart_tool/
-packages/*/.flutter-plugins
-packages/*/.flutter-plugins-dependencies
-packages/*/pubspec.lock
