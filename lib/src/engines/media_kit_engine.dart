@@ -1,39 +1,40 @@
-// ignore_for_file: undefined_identifier, undefined_class, undefined_prefixed_name, unused_field, unused_element
-//
-// MediaKitEngine — media_kit 引擎（Linux，可选）
-//
-// 此文件依赖 `media_kit` 和 `media_kit_video` 包，需在宿主项目的 pubspec.yaml 中添加：
-//
-//   dependencies:
-//     media_kit: ^x.x.x
-//     media_kit_video: ^x.x.x
-//     media_kit_libs_video: ^x.x.x
-//
-// 在宿主项目中注册引擎：
-//
-//   YuNiPlayerPlugin.initialize(YuNiPlayerConfig(
-//     platformEngines: {
-//       PlatformKey.linux: (src) => MediaKitEngine(src),
-//     },
-//   ));
+import 'dart:async';
 
 import 'package:flutter/widgets.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 import '../core/yu_ni_player_engine.dart';
 import '../core/yu_ni_player_state.dart';
 
-/// media_kit 引擎，适用于 Linux 平台（可选）。
+/// media_kit 引擎，适用于全平台（Android / iOS / macOS / Windows / Linux / Web）。
 ///
-/// 依赖 `media_kit` SDK（`Player`、`VideoController`、`Video` 等）。
-/// 使用前需调用 [initLicense] 完成 SDK 初始化。
+/// 依赖 `media_kit`、`media_kit_video`、`media_kit_libs_video` 包。
+/// 使用前需在 `main()` 中调用 [initLicense] 完成 SDK 初始化。
 ///
-/// **注意**：此引擎需要在宿主项目的 `pubspec.yaml` 中声明 `media_kit` 相关依赖。
+/// ```dart
+/// void main() {
+///   WidgetsFlutterBinding.ensureInitialized();
+///   MediaKitEngine.initLicense(); // 必须在 runApp 之前调用
+///   YuNiPlayerPlugin.initialize(...);
+///   runApp(const MyApp());
+/// }
+/// ```
 class MediaKitEngine extends YuNiPlayerEngine {
   MediaKitEngine(super.source);
 
-  // ── SDK 对象（dynamic 避免编译错误）──────────────────────────
-  dynamic _player;
-  dynamic _videoController;
+  Player? _player;
+  VideoController? _videoController;
+
+  // ── 订阅 ──────────────────────────────────────────────────────
+  StreamSubscription<Duration>? _positionSub;
+  StreamSubscription<Duration>? _bufferSub;
+  StreamSubscription<bool>? _playingSub;
+  StreamSubscription<bool>? _completedSub;
+  StreamSubscription<bool>? _bufferingSub;
+  StreamSubscription<Duration>? _durationSub;
+  StreamSubscription<VideoParams>? _videoParamsSub;
+  StreamSubscription<String>? _errorSub;
 
   // ── 回调 ──────────────────────────────────────────────────────
   void Function(Duration)? _onPositionUpdateCallback;
@@ -47,19 +48,25 @@ class MediaKitEngine extends YuNiPlayerEngine {
 
   /// 初始化 media_kit SDK。
   ///
-  /// 应在 [YuNiPlayerPlugin.initialize] 之前调用一次。
+  /// 必须在 `main()` 中、`runApp()` 之前调用一次。
+  ///
+  /// ```dart
+  /// void main() {
+  ///   WidgetsFlutterBinding.ensureInitialized();
+  ///   MediaKitEngine.initLicense();
+  ///   runApp(const MyApp());
+  /// }
+  /// ```
   static void initLicense() {
-    // TODO: requires media_kit SDK
-    // MediaKit.ensureInitialized();
+    MediaKit.ensureInitialized();
   }
 
   // ── isPrepared ────────────────────────────────────────────────
 
   @override
   bool get isPrepared {
-    if (_player == null) return false;
-    // TODO: requires media_kit SDK
-    // return _player.state.playing || _player.state.completed;
+    final p = _player;
+    if (p == null) return false;
     return state != YuNiPlayerState.idle && state != YuNiPlayerState.error;
   }
 
@@ -67,54 +74,48 @@ class MediaKitEngine extends YuNiPlayerEngine {
 
   @override
   Future<void> performInit() async {
-    // TODO: requires media_kit SDK
-    // _player = Player();
-    // _videoController = VideoController(_player);
-    instanceCode.value = identityHashCode(this);
+    _player = Player();
+    _videoController = VideoController(_player!);
+    instanceCode.value = _player.hashCode;
 
-    // final media = videoSource.file != null
-    //     ? Media(videoSource.file!.path)
-    //     : Media(videoSource.url!);
-    // await _player.open(media, play: false);
+    _subscribeToEvents();
+
+    final media = videoSource.file != null
+        ? Media(videoSource.file!.path, httpHeaders: config.headers)
+        : Media(videoSource.url!, httpHeaders: config.headers);
+
+    await _player!.open(media, play: false);
   }
 
   // ── performPlay ───────────────────────────────────────────────
 
   @override
   Future<void> performPlay() async {
-    if (_player == null) return;
-    // TODO: requires media_kit SDK
-    // await _player.play();
+    await _player?.play();
   }
 
   // ── performPause ──────────────────────────────────────────────
 
   @override
   Future<void> performPause() async {
-    if (_player == null) return;
-    // TODO: requires media_kit SDK
-    // await _player.pause();
+    await _player?.pause();
   }
 
   // ── performSeek ───────────────────────────────────────────────
 
   @override
   Future<void> performSeek(double seconds) async {
-    if (_player == null) return;
-    // TODO: requires media_kit SDK
-    // await _player.seek(Duration(seconds: seconds.toInt()));
+    await _player?.seek(Duration(milliseconds: (seconds * 1000).toInt()));
   }
 
   // ── performDispose ────────────────────────────────────────────
 
   @override
   Future<void> performDispose() async {
-    if (_player != null) {
-      // TODO: requires media_kit SDK
-      // await _player.dispose();
-      _player = null;
-      _videoController = null;
-    }
+    await _cancelSubscriptions();
+    await _player?.dispose();
+    _player = null;
+    _videoController = null;
     _listeners.clear();
   }
 
@@ -122,57 +123,45 @@ class MediaKitEngine extends YuNiPlayerEngine {
 
   @override
   Future<void> performRelease() async {
-    if (_player != null) {
-      // TODO: requires media_kit SDK
-      // await _player.dispose();
-      _player = null;
-      _videoController = null;
-    }
-    // 重建 player 和 videoController
-    // TODO: requires media_kit SDK
-    // _player = Player();
-    // _videoController = VideoController(_player);
-    instanceCode.value = identityHashCode(this) ^ DateTime.now().millisecondsSinceEpoch;
+    await _cancelSubscriptions();
+    await _player?.dispose();
+    _player = null;
+    _videoController = null;
     _onPreparedCallback?.call(false);
+    instanceCode.value = instanceCode.value + 1;
   }
 
   // ── buildView ─────────────────────────────────────────────────
 
   @override
   Widget buildView() {
-    // TODO: requires media_kit SDK
-    // return Video(controller: _videoController);
-    return const SizedBox.shrink(); // placeholder until media_kit is available
+    final vc = _videoController;
+    if (vc == null) return const SizedBox.shrink();
+    return Video(controller: vc, controls: NoVideoControls);
   }
 
   // ── 播放控制 ──────────────────────────────────────────────────
 
   @override
   Future<void> setLoop(bool loop) async {
-    if (_player == null) return;
-    // TODO: requires media_kit SDK
-    // await _player.setPlaylistMode(loop ? PlaylistMode.loop : PlaylistMode.none);
+    await _player?.setPlaylistMode(
+      loop ? PlaylistMode.single : PlaylistMode.none,
+    );
   }
 
   @override
   Future<void> setVolume(double volume) async {
-    if (_player == null) return;
-    // TODO: requires media_kit SDK
-    // await _player.setVolume(volume * 100);
+    await _player?.setVolume(volume * 100);
   }
 
   @override
   Future<void> setMute(bool mute) async {
-    if (_player == null) return;
-    // TODO: requires media_kit SDK
-    // await _player.setVolume(mute ? 0.0 : 100.0);
+    await _player?.setVolume(mute ? 0.0 : 100.0);
   }
 
   @override
   Future<void> setRate(double rate) async {
-    if (_player == null) return;
-    // TODO: requires media_kit SDK
-    // await _player.setRate(rate);
+    await _player?.setRate(rate);
   }
 
   @override
@@ -207,5 +196,108 @@ class MediaKitEngine extends YuNiPlayerEngine {
   @override
   void onPrepared(void Function(bool prepared) callback) {
     _onPreparedCallback = callback;
+  }
+
+  // ── 内部事件订阅 ──────────────────────────────────────────────
+
+  void _subscribeToEvents() {
+    final p = _player;
+    if (p == null) return;
+
+    // 播放位置
+    _positionSub = p.stream.position.listen((pos) {
+      videoData.posMilli = pos.inMilliseconds;
+      _onPositionUpdateCallback?.call(pos);
+      _notifyListeners();
+    });
+
+    // 缓冲位置
+    _bufferSub = p.stream.buffer.listen((buf) {
+      final dur = p.state.duration;
+      if (dur.inMilliseconds > 0) {
+        videoData.bufferPercent =
+            (buf.inMilliseconds * 100 ~/ dur.inMilliseconds).clamp(0, 100);
+        _onBufferUpdateCallback?.call(videoData.bufferPercent);
+      }
+    });
+
+    // 时长
+    _durationSub = p.stream.duration.listen((dur) {
+      videoData.duration = dur;
+    });
+
+    // 视频参数（宽高比）
+    _videoParamsSub = p.stream.videoParams.listen((params) {
+      final w = params.dw?.toDouble() ?? 0;
+      final h = params.dh?.toDouble() ?? 0;
+      if (w > 0 && h > 0) {
+        videoData.width = w;
+        videoData.height = h;
+        videoData.aspectRatio = w / h;
+        videoData.videoRenderStart = true;
+        _onPreparedCallback?.call(true);
+      }
+    });
+
+    // 播放/暂停状态
+    _playingSub = p.stream.playing.listen((playing) {
+      if (playing) {
+        updateState(YuNiPlayerState.playing);
+      } else if (state == YuNiPlayerState.playing) {
+        updateState(YuNiPlayerState.paused);
+      }
+    });
+
+    // 缓冲状态
+    _bufferingSub = p.stream.buffering.listen((buffering) {
+      if (buffering) {
+        updateState(YuNiPlayerState.buffering);
+      } else if (state == YuNiPlayerState.buffering) {
+        // 缓冲结束，恢复到播放或暂停
+        updateState(
+          p.state.playing ? YuNiPlayerState.playing : YuNiPlayerState.paused,
+        );
+      }
+    });
+
+    // 播放完成
+    _completedSub = p.stream.completed.listen((completed) {
+      if (completed) {
+        updateState(YuNiPlayerState.completed);
+      }
+    });
+
+    // 错误
+    _errorSub = p.stream.error.listen((error) {
+      if (error.isNotEmpty) {
+        videoData.lastError = error;
+        updateState(YuNiPlayerState.error);
+      }
+    });
+  }
+
+  Future<void> _cancelSubscriptions() async {
+    await _positionSub?.cancel();
+    await _bufferSub?.cancel();
+    await _durationSub?.cancel();
+    await _videoParamsSub?.cancel();
+    await _playingSub?.cancel();
+    await _bufferingSub?.cancel();
+    await _completedSub?.cancel();
+    await _errorSub?.cancel();
+    _positionSub = null;
+    _bufferSub = null;
+    _durationSub = null;
+    _videoParamsSub = null;
+    _playingSub = null;
+    _bufferingSub = null;
+    _completedSub = null;
+    _errorSub = null;
+  }
+
+  void _notifyListeners() {
+    for (final l in _listeners) {
+      l();
+    }
   }
 }
