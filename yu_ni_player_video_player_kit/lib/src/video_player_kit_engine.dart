@@ -1,8 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:video_player/video_player.dart';
-// video_player_win provides Windows support for the video_player plugin.
-// On Windows, importing this package registers the Windows implementation.
-import 'package:video_player_win/video_player_win.dart';
 
 import 'package:yu_ni_player_base/yu_ni_player_base.dart';
 
@@ -118,7 +115,9 @@ class VideoPlayerKitEngine extends YuNiPlayerEngine {
       await c.dispose();
     }
     _onPreparedCallback?.call(false);
-    instanceCode.value = instanceCode.value + 1;
+    if (!isDisposed) {
+      instanceCode.value = instanceCode.value + 1;
+    }
   }
 
   // ── buildView ─────────────────────────────────────────────────

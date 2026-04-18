@@ -137,6 +137,8 @@ abstract class YuNiPlayerEngine {
     if (_disposed) return;
     _disposed = true;
     await performDispose();
+    // 在 performDispose 完成后再 dispose notifier，
+    // 避免异步回调在 dispose 期间写入已销毁的 notifier
     stateNotifier.dispose();
     instanceCode.dispose();
   }
@@ -144,7 +146,9 @@ abstract class YuNiPlayerEngine {
   /// 释放 native 资源但保留实例（可重新 [init]，用于对象池回收）。
   ///
   /// 调用后状态重置为 [YuNiPlayerState.idle]，[videoData] 被重置。
+  /// 若已 dispose 则直接 return，不执行任何操作。
   Future<void> release() async {
+    if (_disposed) return;
     await performRelease();
     videoData.reset();
     updateState(YuNiPlayerState.idle);
@@ -152,6 +156,7 @@ abstract class YuNiPlayerEngine {
 
   /// 重置播放器：等同于 [release] + 重置 [videoData] + 状态回到 idle。
   Future<void> reset() async {
+    if (_disposed) return;
     await release();
     videoData.reset();
     updateState(YuNiPlayerState.idle);

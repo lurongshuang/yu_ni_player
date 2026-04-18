@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:yu_ni_player_base/yu_ni_player_base.dart';
 import 'package:yu_ni_player_media_kit/yu_ni_player_media_kit.dart';
+import 'package:yu_ni_player_tx_player/yu_ni_player_tx_player.dart';
 import 'package:yu_ni_player_video_player_kit/yu_ni_player_video_player_kit.dart';
 
+import 'config/tx_license.dart';
 import 'pages/home_page.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // media_kit 必须在 runApp 之前初始化
   MediaKitEngine.initLicense();
+
+  // 从 native BuildConfig 读取腾讯 license（存于 local.properties，不提交 git）
+  await TxLicense.load();
+  if (TxLicense.licenseUrl.isNotEmpty) {
+    TXPlayerEngine.initLicense(TxLicense.licenseUrl, TxLicense.licenseKey);
+  }
 
   YuNiPlayerPlugin.initialize(
     YuNiPlayerConfig(

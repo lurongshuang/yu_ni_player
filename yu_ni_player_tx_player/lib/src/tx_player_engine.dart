@@ -111,7 +111,9 @@ class TXPlayerEngine extends YuNiPlayerEngine {
     await _controller?.dispose();
     _controller = null;
     _onPreparedCallback?.call(false);
-    instanceCode.value = instanceCode.value + 1;
+    if (!isDisposed) {
+      instanceCode.value = instanceCode.value + 1;
+    }
   }
 
   // ── buildView ─────────────────────────────────────────────────

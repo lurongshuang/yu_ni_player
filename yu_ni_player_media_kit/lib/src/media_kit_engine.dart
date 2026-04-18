@@ -119,7 +119,9 @@ class MediaKitEngine extends YuNiPlayerEngine {
     _player = null;
     _videoController = null;
     _onPreparedCallback?.call(false);
-    instanceCode.value = instanceCode.value + 1;
+    if (!isDisposed) {
+      instanceCode.value = instanceCode.value + 1;
+    }
   }
 
   // ── buildView ─────────────────────────────────────────────────
