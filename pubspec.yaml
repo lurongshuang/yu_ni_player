@@ -1,0 +1,33 @@
+name: yu_ni_player
+description: A unified Flutter video player plugin with multi-engine support (video_player, TXPlayer, media_kit). Single API, LRU pool, fullscreen, custom controls.
+version: 1.0.0
+homepage: https://github.com/lurongshuang/yu_ni_player
+repository: https://github.com/lurongshuang/yu_ni_player
+issue_tracker: https://github.com/lurongshuang/yu_ni_player/issues
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  video_player: ^2.9.2
+
+  # ── 可选引擎依赖（使用者在自己的 pubspec.yaml 中按需添加）──────────
+  # 腾讯播放器（iOS / Android）：
+  #   super_player: ^11.x.x
+  #
+  # media_kit（Linux，可选）：
+  #   media_kit: ^1.x.x
+  #   media_kit_video: ^1.x.x
+  #   media_kit_libs_video: ^1.x.x
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  glados: ^1.1.7
+
+flutter:
+  uses-material-design: true

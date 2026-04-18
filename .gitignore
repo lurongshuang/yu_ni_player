@@ -1,0 +1,28 @@
+# Dart/Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+pubspec.lock
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# macOS
+.DS_Store
+
+# Example app build artifacts
+example/build/
+example/.dart_tool/
+example/.flutter-plugins
+example/.flutter-plugins-dependencies
+example/pubspec.lock
+example/android/.gradle/
+example/android/local.properties
+example/ios/Pods/
+example/ios/Podfile.lock
+example/macos/Pods/
+example/macos/Podfile.lock
