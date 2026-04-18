@@ -14,10 +14,10 @@ dependencies:
     sdk: flutter
 
   # ── VideoPlayerKitEngine（iOS / Android / macOS / Windows / Web）──
-  video_player: ^2.9.2
+  video_player: ^2.11.1
 
   # ── TXPlayerEngine（iOS / Android，腾讯超级播放器）────────────────
-  super_player: ^13.7.0
+  super_player: ^13.1.0
 
   # ── MediaKitEngine（全平台，开源）────────────────────────────────
   media_kit: ^1.2.6
