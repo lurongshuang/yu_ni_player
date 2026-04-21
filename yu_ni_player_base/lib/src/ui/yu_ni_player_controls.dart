@@ -74,9 +74,12 @@ class YuNiControlsContext {
   final void Function(bool mute) onSetMute;
 
   bool get isPlaying => state == YuNiPlayerState.playing;
+
   bool get isLoading =>
       state == YuNiPlayerState.loading || state == YuNiPlayerState.buffering;
+
   bool get isError => state == YuNiPlayerState.error;
+
   bool get isCompleted => state == YuNiPlayerState.completed;
 
   /// 进度百分比（0.0 ~ 1.0）
@@ -107,6 +110,7 @@ class YuNiDefaultControls extends StatefulWidget {
     this.showFullscreenButton = true,
     this.primaryColor,
     this.backgroundColor,
+    this.extraActions,
   });
 
   final YuNiControlsContext controls;
@@ -128,6 +132,9 @@ class YuNiDefaultControls extends StatefulWidget {
 
   /// 控制栏背景色
   final Color? backgroundColor;
+
+  /// 额外添加到底部控制栏右侧的组件列表（渲染在 Spacer 之后，RateButton 之前）
+  final List<Widget>? extraActions;
 
   @override
   State<YuNiDefaultControls> createState() => _YuNiDefaultControlsState();
@@ -196,7 +203,8 @@ class _YuNiDefaultControlsState extends State<YuNiDefaultControls>
     if (!widget.controls.isPlaying && !_visible) {
       _show();
     }
-    if (widget.controls.isPlaying && oldWidget.controls.state != widget.controls.state) {
+    if (widget.controls.isPlaying &&
+        oldWidget.controls.state != widget.controls.state) {
       _scheduleHide();
     }
   }
@@ -235,8 +243,8 @@ class _YuNiDefaultControlsState extends State<YuNiDefaultControls>
                   const SizedBox(height: 8),
                   TextButton(
                     onPressed: c.onPlay,
-                    child: const Text('重试',
-                        style: TextStyle(color: Colors.white)),
+                    child:
+                        const Text('重试', style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),
@@ -251,7 +259,8 @@ class _YuNiDefaultControlsState extends State<YuNiDefaultControls>
                     color: Colors.black54,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.replay, color: Colors.white, size: 36),
+                  child:
+                      const Icon(Icons.replay, color: Colors.white, size: 36),
                 ),
               ),
             ),
@@ -309,10 +318,12 @@ class _YuNiDefaultControlsState extends State<YuNiDefaultControls>
                                 ),
                                 Text(
                                   '${_formatDuration(c.position)} / ${_formatDuration(c.duration)}',
-                                  style: TextStyle(
-                                      color: primary, fontSize: 12),
+                                  style:
+                                      TextStyle(color: primary, fontSize: 12),
                                 ),
                                 const Spacer(),
+                                if (widget.extraActions != null)
+                                  ...widget.extraActions!,
                                 if (widget.showRateButton)
                                   _RateButton(
                                     rate: c.rate,
@@ -388,8 +399,8 @@ class _ProgressBar extends StatelessWidget {
 
     return LayoutBuilder(builder: (context, constraints) {
       final trackWidth = constraints.maxWidth;
-      final thumbCenterX =
-          (displayProgress * trackWidth).clamp(_thumbRadius, trackWidth - _thumbRadius);
+      final thumbCenterX = (displayProgress * trackWidth)
+          .clamp(_thumbRadius, trackWidth - _thumbRadius);
       final thumbLeft = thumbCenterX - _thumbRadius;
 
       return GestureDetector(
@@ -503,8 +514,7 @@ class _RateButton extends StatelessWidget {
                 child: Text(
                   r == 1.0 ? '正常' : '${r}x',
                   style: TextStyle(
-                    fontWeight:
-                        r == rate ? FontWeight.bold : FontWeight.normal,
+                    fontWeight: r == rate ? FontWeight.bold : FontWeight.normal,
                     color: r == rate ? Theme.of(context).primaryColor : null,
                   ),
                 ),

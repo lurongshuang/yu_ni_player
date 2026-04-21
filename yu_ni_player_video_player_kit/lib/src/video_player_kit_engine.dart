@@ -129,25 +129,25 @@ class VideoPlayerKitEngine extends YuNiPlayerEngine {
     return VideoPlayer(c);
   }
 
-  // ── 播放控制 ──────────────────────────────────────────────────
+  // ── 播放控制实现 ──────────────────────────────────────────────
 
   @override
-  Future<void> setLoop(bool loop) async {
+  Future<void> performSetLoop(bool loop) async {
     await _controller?.setLooping(loop);
   }
 
   @override
-  Future<void> setVolume(double volume) async {
+  Future<void> performSetVolume(double volume) async {
     await _controller?.setVolume(volume);
   }
 
   @override
-  Future<void> setMute(bool mute) async {
+  Future<void> performSetMute(bool mute) async {
     await _controller?.setVolume(mute ? 0.0 : 1.0);
   }
 
   @override
-  Future<void> setRate(double rate) async {
+  Future<void> performSetRate(double rate) async {
     await _controller?.setPlaybackSpeed(rate);
   }
 

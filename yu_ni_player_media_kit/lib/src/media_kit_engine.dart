@@ -10,15 +10,6 @@ import 'package:yu_ni_player_base/yu_ni_player_base.dart';
 ///
 /// 依赖 `media_kit`、`media_kit_video`、`media_kit_libs_video` 包。
 /// 使用前需在 `main()` 中调用 [initLicense] 完成 SDK 初始化。
-///
-/// ```dart
-/// void main() {
-///   WidgetsFlutterBinding.ensureInitialized();
-///   MediaKitEngine.initLicense(); // 必须在 runApp 之前调用
-///   YuNiPlayerPlugin.initialize(...);
-///   runApp(const MyApp());
-/// }
-/// ```
 class MediaKitEngine extends YuNiPlayerEngine {
   MediaKitEngine(super.source);
 
@@ -72,8 +63,10 @@ class MediaKitEngine extends YuNiPlayerEngine {
     _subscribeToEvents();
 
     final media = videoSource.file != null
-        ? Media(videoSource.file!.path, httpHeaders: videoSource.mergedHeaders(config.headers))
-        : Media(videoSource.url!, httpHeaders: videoSource.mergedHeaders(config.headers));
+        ? Media(videoSource.file!.path,
+            httpHeaders: videoSource.mergedHeaders(config.headers))
+        : Media(videoSource.url!,
+            httpHeaders: videoSource.mergedHeaders(config.headers));
 
     await _player!.open(media, play: false);
   }
@@ -133,33 +126,33 @@ class MediaKitEngine extends YuNiPlayerEngine {
     return Video(controller: vc, controls: NoVideoControls);
   }
 
-  // ── 播放控制 ──────────────────────────────────────────────────
+  // ── 播放控制实现 ──────────────────────────────────────────────
 
   @override
-  Future<void> setLoop(bool loop) async {
+  Future<void> performSetLoop(bool loop) async {
     await _player?.setPlaylistMode(
       loop ? PlaylistMode.single : PlaylistMode.none,
     );
   }
 
   @override
-  Future<void> setVolume(double volume) async {
+  Future<void> performSetVolume(double volume) async {
     await _player?.setVolume(volume * 100);
   }
 
   @override
-  Future<void> setMute(bool mute) async {
+  Future<void> performSetMute(bool mute) async {
     await _player?.setVolume(mute ? 0.0 : 100.0);
   }
 
   @override
-  Future<void> setRate(double rate) async {
+  Future<void> performSetRate(double rate) async {
     await _player?.setRate(rate);
   }
 
   @override
   Future<void> preload() async {
-    // media_kit 通过 open() 触发预加载，此处为空实现
+    // media_kit 通过 open() 触发预加载
   }
 
   // ── 监听器 ────────────────────────────────────────────────────

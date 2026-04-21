@@ -26,6 +26,7 @@ class YuNiPlayer extends StatefulWidget {
     this.aspectRatio,
     this.onFullscreenChanged,
     this.allowFullscreen = true,
+    this.extraControls,
   });
 
   final YuNiPlayerEngine player;
@@ -37,6 +38,9 @@ class YuNiPlayer extends StatefulWidget {
   final double? aspectRatio;
   final void Function(bool isFullscreen)? onFullscreenChanged;
   final bool allowFullscreen;
+
+  /// 额外添加到底部控制栏右侧的组件列表（仅在 showDefaultControls 为 true 时生效）
+  final List<Widget>? extraControls;
 
   @override
   State<YuNiPlayer> createState() => _YuNiPlayerState();
@@ -124,6 +128,7 @@ class _YuNiPlayerState extends State<YuNiPlayer> with WidgetsBindingObserver {
           player: widget.player,
           controlsBuilder: widget.controlsBuilder,
           showDefaultControls: widget.showDefaultControls,
+          extraControls: widget.extraControls,
           buildControlsContext: _buildControlsContext,
           onExit: () => Navigator.of(ctx, rootNavigator: true).pop(),
         ),
@@ -209,7 +214,10 @@ class _YuNiPlayerState extends State<YuNiPlayer> with WidgetsBindingObserver {
                 )
               else if (widget.showDefaultControls)
                 Positioned.fill(
-                  child: YuNiDefaultControls(controls: _buildControlsContext()),
+                  child: YuNiDefaultControls(
+                    controls: _buildControlsContext(),
+                    extraActions: widget.extraControls,
+                  ),
                 ),
             ],
           ),
@@ -261,6 +269,7 @@ class _FullscreenPage extends StatefulWidget {
     required this.player,
     required this.controlsBuilder,
     required this.showDefaultControls,
+    this.extraControls,
     required this.buildControlsContext,
     required this.onExit,
   });
@@ -268,6 +277,7 @@ class _FullscreenPage extends StatefulWidget {
   final YuNiPlayerEngine player;
   final YuNiControlsBuilder? controlsBuilder;
   final bool showDefaultControls;
+  final List<Widget>? extraControls;
   final YuNiControlsContext Function() buildControlsContext;
   final VoidCallback onExit;
 
@@ -378,6 +388,7 @@ class _FullscreenPageState extends State<_FullscreenPage> {
       return _FullscreenControls(
         controls: widget.buildControlsContext(),
         isLandscape: isLandscape,
+        extraControls: widget.extraControls,
         onToggleRotation: _toggleManualRotation,
         onExit: widget.onExit,
       );
@@ -392,12 +403,14 @@ class _FullscreenControls extends StatefulWidget {
   const _FullscreenControls({
     required this.controls,
     required this.isLandscape,
+    this.extraControls,
     required this.onToggleRotation,
     required this.onExit,
   });
 
   final YuNiControlsContext controls;
   final bool isLandscape;
+  final List<Widget>? extraControls;
   final VoidCallback onToggleRotation;
   final VoidCallback onExit;
 
@@ -570,6 +583,8 @@ class _FullscreenControlsState extends State<_FullscreenControls>
                                       color: primary, fontSize: 12),
                                 ),
                                 const Spacer(),
+                                if (widget.extraControls != null)
+                                  ...widget.extraControls!,
                                 _RateButton(
                                     rate: c.rate,
                                     color: primary,

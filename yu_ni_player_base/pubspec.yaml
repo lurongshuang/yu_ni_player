@@ -1,6 +1,15 @@
 name: yu_ni_player_base
-description: Abstract base library for yu_ni_player multi-engine Flutter video player plugin.
+description: Abstract base library for yu_ni_player multi-engine Flutter video player plugin with zero-dependency on specific SDKs.
 version: 1.0.0
+homepage: https://github.com/lurongshuang/yu_ni_player/tree/main/yu_ni_player_base
+repository: https://github.com/lurongshuang/yu_ni_player
+issue_tracker: https://github.com/lurongshuang/yu_ni_player/issues
+
+topics:
+  - video
+  - player
+  - engine
+  - abstraction
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

@@ -162,6 +162,35 @@ abstract class YuNiPlayerEngine {
     updateState(YuNiPlayerState.idle);
   }
 
+  // ── 播放控制封装（模板方法） ──────────────────────────────────
+
+  /// 设置是否循环播放。同步更新 [config]。
+  Future<void> setLoop(bool loop) async {
+    if (_disposed) return;
+    await performSetLoop(loop);
+    config = config.copyWith(loop: loop);
+  }
+
+  /// 设置音量（0.0 ~ 1.0）。
+  Future<void> setVolume(double volume) async {
+    if (_disposed) return;
+    await performSetVolume(volume);
+  }
+
+  /// 设置是否静音。同步更新 [config]。
+  Future<void> setMute(bool mute) async {
+    if (_disposed) return;
+    await performSetMute(mute);
+    config = config.copyWith(mute: mute);
+  }
+
+  /// 设置播放速率（[0.25, 4.0]）。同步更新 [config]。
+  Future<void> setRate(double rate) async {
+    if (_disposed) return;
+    await performSetRate(rate);
+    config = config.copyWith(speed: rate);
+  }
+
   // ── 抽象方法：子类实现具体逻辑 ────────────────────────────────
 
   /// 子类实现：初始化底层 SDK 并开始加载视频
@@ -188,21 +217,25 @@ abstract class YuNiPlayerEngine {
   @protected
   Future<void> performRelease();
 
-  // ── 播放控制（抽象，子类实现）────────────────────────────────
+  // ── 播放控制子类实现（原 setXXX 方法的基础） ─────────────────
 
-  /// 设置是否循环播放
-  Future<void> setLoop(bool loop);
+  /// 子类具体实现：设置是否循环播放
+  @protected
+  Future<void> performSetLoop(bool loop);
 
-  /// 设置音量（0.0 ~ 1.0）
-  Future<void> setVolume(double volume);
+  /// 子类具体实现：设置音量（0.0 ~ 1.0）
+  @protected
+  Future<void> performSetVolume(double volume);
 
-  /// 设置是否静音
-  Future<void> setMute(bool mute);
+  /// 子类具体实现：设置是否静音
+  @protected
+  Future<void> performSetMute(bool mute);
 
-  /// 设置播放速率（[0.25, 4.0]）
-  Future<void> setRate(double rate);
+  /// 子类具体实现：设置播放速率（[0.25, 4.0]）
+  @protected
+  Future<void> performSetRate(double rate);
 
-  /// 预加载视频
+  /// 预加视频资源（可选实现）
   Future<void> preload();
 
   // ── UI 渲染（抽象，子类实现）─────────────────────────────────

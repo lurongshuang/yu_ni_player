@@ -9,18 +9,6 @@ import 'package:yu_ni_player_base/yu_ni_player_base.dart';
 ///
 /// 依赖 `super_player` SDK（`TXVodPlayerController`、`TXPlayerVideo` 等）。
 /// 使用前需调用 [initLicense] 完成 SDK 授权初始化。
-///
-/// ```dart
-/// void main() {
-///   WidgetsFlutterBinding.ensureInitialized();
-///   TXPlayerEngine.initLicense(
-///     'https://license.vod2.myqcloud.com/license/v2/xxx/v_cube.license',
-///     'your-license-key',
-///   );
-///   YuNiPlayerPlugin.initialize(...);
-///   runApp(const MyApp());
-/// }
-/// ```
 class TXPlayerEngine extends YuNiPlayerEngine {
   TXPlayerEngine(super.source);
 
@@ -130,31 +118,31 @@ class TXPlayerEngine extends YuNiPlayerEngine {
     );
   }
 
-  // ── 播放控制 ──────────────────────────────────────────────────
+  // ── 播放控制实现 ──────────────────────────────────────────────
 
   @override
-  Future<void> setLoop(bool loop) async {
+  Future<void> performSetLoop(bool loop) async {
     await _controller?.setLoop(loop);
   }
 
   @override
-  Future<void> setVolume(double volume) async {
+  Future<void> performSetVolume(double volume) async {
     await _controller?.setAudioPlayoutVolume((volume * 100).toInt());
   }
 
   @override
-  Future<void> setMute(bool mute) async {
+  Future<void> performSetMute(bool mute) async {
     await _controller?.setMute(mute);
   }
 
   @override
-  Future<void> setRate(double rate) async {
+  Future<void> performSetRate(double rate) async {
     await _controller?.setRate(rate);
   }
 
   @override
   Future<void> preload() async {
-    // 腾讯播放器通过 startVodPlay 触发预加载，此处为空实现
+    // 腾讯播放器通过 startVodPlay 触发预加载
   }
 
   // ── 监听器 ────────────────────────────────────────────────────

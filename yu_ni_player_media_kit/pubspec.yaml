@@ -1,6 +1,15 @@
 name: yu_ni_player_media_kit
-description: media_kit engine implementation for yu_ni_player.
+description: media_kit engine implementation for yu_ni_player, providing high-performance video playback on Linux.
 version: 1.0.0
+homepage: https://github.com/lurongshuang/yu_ni_player/tree/main/yu_ni_player_media_kit
+repository: https://github.com/lurongshuang/yu_ni_player
+issue_tracker: https://github.com/lurongshuang/yu_ni_player/issues
+
+topics:
+  - video
+  - player
+  - linux
+  - media-kit
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
