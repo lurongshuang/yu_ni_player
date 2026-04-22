@@ -27,6 +27,8 @@ class YuNiPlayer extends StatefulWidget {
     this.onFullscreenChanged,
     this.allowFullscreen = true,
     this.extraControls,
+    this.fullscreenPadding,
+    this.fullscreenControlsBuilder,
   });
 
   final YuNiPlayerEngine player;
@@ -41,6 +43,12 @@ class YuNiPlayer extends StatefulWidget {
 
   /// 额外添加到底部控制栏右侧的组件列表（仅在 showDefaultControls 为 true 时生效）
   final List<Widget>? extraControls;
+
+  /// 全屏模式下的控制栏边距
+  final EdgeInsetsGeometry? fullscreenPadding;
+
+  /// 全屏模式下的专属控制栏构建器
+  final YuNiControlsBuilder? fullscreenControlsBuilder;
 
   @override
   State<YuNiPlayer> createState() => _YuNiPlayerState();
@@ -129,6 +137,8 @@ class _YuNiPlayerState extends State<YuNiPlayer> with WidgetsBindingObserver {
           controlsBuilder: widget.controlsBuilder,
           showDefaultControls: widget.showDefaultControls,
           extraControls: widget.extraControls,
+          fullscreenPadding: widget.fullscreenPadding,
+          fullscreenControlsBuilder: widget.fullscreenControlsBuilder,
           buildControlsContext: _buildControlsContext,
           onExit: () => Navigator.of(ctx, rootNavigator: true).pop(),
         ),
@@ -267,9 +277,11 @@ class _FullscreenRoute extends PageRoute<void> {
 class _FullscreenPage extends StatefulWidget {
   const _FullscreenPage({
     required this.player,
-    required this.controlsBuilder,
-    required this.showDefaultControls,
+    this.controlsBuilder,
+    this.showDefaultControls = false,
     this.extraControls,
+    this.fullscreenPadding,
+    this.fullscreenControlsBuilder,
     required this.buildControlsContext,
     required this.onExit,
   });
@@ -278,6 +290,8 @@ class _FullscreenPage extends StatefulWidget {
   final YuNiControlsBuilder? controlsBuilder;
   final bool showDefaultControls;
   final List<Widget>? extraControls;
+  final EdgeInsetsGeometry? fullscreenPadding;
+  final YuNiControlsBuilder? fullscreenControlsBuilder;
   final YuNiControlsContext Function() buildControlsContext;
   final VoidCallback onExit;
 
@@ -381,14 +395,16 @@ class _FullscreenPageState extends State<_FullscreenPage> {
   }
 
   Widget _buildControls({required bool isLandscape}) {
-    if (widget.controlsBuilder != null) {
-      return widget.controlsBuilder!(context, widget.buildControlsContext());
+    final fsBuilder = widget.fullscreenControlsBuilder ?? widget.controlsBuilder;
+    if (fsBuilder != null) {
+      return fsBuilder(context, widget.buildControlsContext());
     }
     if (widget.showDefaultControls) {
-      return _FullscreenControls(
+      return YuNiFullscreenControls(
         controls: widget.buildControlsContext(),
         isLandscape: isLandscape,
         extraControls: widget.extraControls,
+        padding: widget.fullscreenPadding,
         onToggleRotation: _toggleManualRotation,
         onExit: widget.onExit,
       );
@@ -397,13 +413,14 @@ class _FullscreenPageState extends State<_FullscreenPage> {
   }
 }
 
-// ── 全屏控制栏 ────────────────────────────────────────────────────────────────
-
-class _FullscreenControls extends StatefulWidget {
-  const _FullscreenControls({
+/// 全屏控制栏
+class YuNiFullscreenControls extends StatefulWidget {
+  const YuNiFullscreenControls({
+    super.key,
     required this.controls,
     required this.isLandscape,
     this.extraControls,
+    this.padding,
     required this.onToggleRotation,
     required this.onExit,
   });
@@ -411,14 +428,15 @@ class _FullscreenControls extends StatefulWidget {
   final YuNiControlsContext controls;
   final bool isLandscape;
   final List<Widget>? extraControls;
+  final EdgeInsetsGeometry? padding;
   final VoidCallback onToggleRotation;
   final VoidCallback onExit;
 
   @override
-  State<_FullscreenControls> createState() => _FullscreenControlsState();
+  State<YuNiFullscreenControls> createState() => _YuNiFullscreenControlsState();
 }
 
-class _FullscreenControlsState extends State<_FullscreenControls>
+class _YuNiFullscreenControlsState extends State<YuNiFullscreenControls>
     with SingleTickerProviderStateMixin {
   bool _visible = true;
   bool _dragging = false;
@@ -445,7 +463,7 @@ class _FullscreenControlsState extends State<_FullscreenControls>
   }
 
   @override
-  void didUpdateWidget(covariant _FullscreenControls old) {
+  void didUpdateWidget(covariant YuNiFullscreenControls old) {
     super.didUpdateWidget(old);
     if (!widget.controls.isPlaying && !_visible) _show();
     if (widget.controls.isPlaying &&
@@ -546,7 +564,7 @@ class _FullscreenControlsState extends State<_FullscreenControls>
                             colors: [Colors.transparent, bg],
                           ),
                         ),
-                        padding: const EdgeInsets.fromLTRB(8, 24, 8, 12),
+                        padding: widget.padding ?? const EdgeInsets.fromLTRB(8, 24, 8, 12),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [

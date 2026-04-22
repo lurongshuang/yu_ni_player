@@ -111,6 +111,7 @@ class YuNiDefaultControls extends StatefulWidget {
     this.primaryColor,
     this.backgroundColor,
     this.extraActions,
+    this.padding,
   });
 
   final YuNiControlsContext controls;
@@ -135,6 +136,9 @@ class YuNiDefaultControls extends StatefulWidget {
 
   /// 额外添加到底部控制栏右侧的组件列表（渲染在 Spacer 之后，RateButton 之前）
   final List<Widget>? extraActions;
+
+  /// 控制栏边距，默认 EdgeInsets.fromLTRB(8, 24, 8, 8)
+  final EdgeInsetsGeometry? padding;
 
   @override
   State<YuNiDefaultControls> createState() => _YuNiDefaultControlsState();
@@ -281,7 +285,7 @@ class _YuNiDefaultControlsState extends State<YuNiDefaultControls>
                             ],
                           ),
                         ),
-                        padding: const EdgeInsets.fromLTRB(8, 24, 8, 8),
+                        padding: widget.padding ?? const EdgeInsets.fromLTRB(8, 24, 8, 8),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
