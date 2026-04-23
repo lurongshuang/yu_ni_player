@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:yu_ni_player_base/yu_ni_player_base.dart';
 
 import '../core/yu_ni_player_state.dart';
 
@@ -19,10 +20,7 @@ typedef YuNiControlsBuilder = Widget Function(
 /// 使用者通过此对象构建完全自定义的控制栏，无需直接操作引擎。
 class YuNiControlsContext {
   const YuNiControlsContext({
-    required this.state,
-    required this.position,
-    required this.duration,
-    required this.bufferPercent,
+    required this.player,
     required this.isFullscreen,
     required this.onPlay,
     required this.onPause,
@@ -34,17 +32,20 @@ class YuNiControlsContext {
     required this.rate,
   });
 
+  /// 播放器引擎
+  final YuNiPlayerEngine player;
+
   /// 当前播放状态
-  final YuNiPlayerState state;
+  YuNiPlayerState get state => player.state;
 
   /// 当前播放位置
-  final Duration position;
+  Duration get position => Duration(milliseconds: player.videoData.posMilli ?? 0);
 
   /// 视频总时长
-  final Duration duration;
+  Duration get duration => player.videoData.duration;
 
   /// 缓冲进度（0–100）
-  final int bufferPercent;
+  int get bufferPercent => player.videoData.bufferPercent;
 
   /// 是否全屏
   final bool isFullscreen;
@@ -163,6 +164,7 @@ class _YuNiDefaultControlsState extends State<YuNiDefaultControls>
       value: 1.0,
     );
     _fadeAnimation = _fadeController;
+    widget.controls.player.addListener(_onPlayerUpdate);
     _scheduleHide();
   }
 
@@ -170,6 +172,7 @@ class _YuNiDefaultControlsState extends State<YuNiDefaultControls>
   void dispose() {
     _hideTimer?.cancel();
     _fadeController.dispose();
+    widget.controls.player.removeListener(_onPlayerUpdate);
     super.dispose();
   }
 
@@ -211,6 +214,14 @@ class _YuNiDefaultControlsState extends State<YuNiDefaultControls>
         oldWidget.controls.state != widget.controls.state) {
       _scheduleHide();
     }
+    if (widget.controls.player != oldWidget.controls.player) {
+      oldWidget.controls.player.removeListener(_onPlayerUpdate);
+      widget.controls.player.addListener(_onPlayerUpdate);
+    }
+  }
+
+  void _onPlayerUpdate() {
+    if (mounted) setState(() {});
   }
 
   String _formatDuration(Duration d) {

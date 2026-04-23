@@ -20,7 +20,6 @@ class TXPlayerEngine extends YuNiPlayerEngine {
   void Function(bool)? _onPreparedCallback;
 
   // ── 监听器列表 ────────────────────────────────────────────────
-  final List<VoidCallback> _listeners = [];
 
   // ── 静态初始化 ────────────────────────────────────────────────
 
@@ -90,7 +89,6 @@ class TXPlayerEngine extends YuNiPlayerEngine {
   Future<void> performDispose() async {
     await _controller?.dispose();
     _controller = null;
-    _listeners.clear();
   }
 
   // ── performRelease ────────────────────────────────────────────
@@ -145,17 +143,6 @@ class TXPlayerEngine extends YuNiPlayerEngine {
     // 腾讯播放器通过 startVodPlay 触发预加载
   }
 
-  // ── 监听器 ────────────────────────────────────────────────────
-
-  @override
-  void addListener(VoidCallback listener) {
-    _listeners.add(listener);
-  }
-
-  @override
-  void removeListener(VoidCallback listener) {
-    _listeners.remove(listener);
-  }
 
   // ── 回调注册 ──────────────────────────────────────────────────
 
@@ -195,7 +182,7 @@ class TXPlayerEngine extends YuNiPlayerEngine {
           _onBufferUpdateCallback?.call(videoData.bufferPercent);
         }
         _onPositionUpdateCallback?.call(Duration(milliseconds: posMs));
-        _notifyListeners();
+        notifyListeners();
 
       case TXVodPlayEvent.PLAY_EVT_VOD_PLAY_PREPARED:
       case TXVodPlayEvent.PLAY_EVT_CHANGE_RESOLUTION:
@@ -231,11 +218,6 @@ class TXPlayerEngine extends YuNiPlayerEngine {
     }
   }
 
-  void _notifyListeners() {
-    for (final l in _listeners) {
-      l();
-    }
-  }
 
   // ── 内部工具 ──────────────────────────────────────────────────
 

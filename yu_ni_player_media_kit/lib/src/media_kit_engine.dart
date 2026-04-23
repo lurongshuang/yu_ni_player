@@ -32,7 +32,6 @@ class MediaKitEngine extends YuNiPlayerEngine {
   void Function(bool)? _onPreparedCallback;
 
   // ── 监听器列表 ────────────────────────────────────────────────
-  final List<VoidCallback> _listeners = [];
 
   // ── 静态初始化 ────────────────────────────────────────────────
 
@@ -100,7 +99,6 @@ class MediaKitEngine extends YuNiPlayerEngine {
     await _player?.dispose();
     _player = null;
     _videoController = null;
-    _listeners.clear();
   }
 
   // ── performRelease ────────────────────────────────────────────
@@ -155,17 +153,6 @@ class MediaKitEngine extends YuNiPlayerEngine {
     // media_kit 通过 open() 触发预加载
   }
 
-  // ── 监听器 ────────────────────────────────────────────────────
-
-  @override
-  void addListener(VoidCallback listener) {
-    _listeners.add(listener);
-  }
-
-  @override
-  void removeListener(VoidCallback listener) {
-    _listeners.remove(listener);
-  }
 
   // ── 回调注册 ──────────────────────────────────────────────────
 
@@ -193,7 +180,7 @@ class MediaKitEngine extends YuNiPlayerEngine {
     _positionSub = p.stream.position.listen((pos) {
       videoData.posMilli = pos.inMilliseconds;
       _onPositionUpdateCallback?.call(pos);
-      _notifyListeners();
+      notifyListeners();
     });
 
     _bufferSub = p.stream.buffer.listen((buf) {
@@ -272,9 +259,4 @@ class MediaKitEngine extends YuNiPlayerEngine {
     _errorSub = null;
   }
 
-  void _notifyListeners() {
-    for (final l in _listeners) {
-      l();
-    }
-  }
 }

@@ -15,7 +15,6 @@ class VideoPlayerKitEngine extends YuNiPlayerEngine {
   void Function(int)? _onBufferUpdateCallback;
   void Function(bool)? _onPreparedCallback;
 
-  final List<VoidCallback> _listeners = [];
 
   /// video_player 不需要许可证初始化。
   static void initLicense() {}
@@ -101,7 +100,6 @@ class VideoPlayerKitEngine extends YuNiPlayerEngine {
       await c.dispose();
       _controller = null;
     }
-    _listeners.clear();
   }
 
   // ── performRelease ────────────────────────────────────────────
@@ -156,19 +154,6 @@ class VideoPlayerKitEngine extends YuNiPlayerEngine {
     // video_player 通过 initialize() 触发预加载
   }
 
-  // ── 监听器 ────────────────────────────────────────────────────
-
-  @override
-  void addListener(VoidCallback listener) {
-    _listeners.add(listener);
-    _controller?.addListener(listener);
-  }
-
-  @override
-  void removeListener(VoidCallback listener) {
-    _listeners.remove(listener);
-    _controller?.removeListener(listener);
-  }
 
   // ── 回调注册 ──────────────────────────────────────────────────
 
@@ -223,6 +208,8 @@ class VideoPlayerKitEngine extends YuNiPlayerEngine {
     if (value.hasError) {
       videoData.lastError = value.errorDescription;
       updateState(YuNiPlayerState.error);
+      debugPrint(value.errorDescription);
+      debugPrint(videoSource.url);
     } else if (value.isBuffering) {
       updateState(YuNiPlayerState.buffering);
     } else if (value.isPlaying) {
@@ -232,5 +219,7 @@ class VideoPlayerKitEngine extends YuNiPlayerEngine {
         value.duration > Duration.zero) {
       updateState(YuNiPlayerState.completed);
     }
+
+    notifyListeners();
   }
 }

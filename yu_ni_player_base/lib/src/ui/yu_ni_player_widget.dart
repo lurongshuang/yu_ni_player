@@ -163,7 +163,9 @@ class _YuNiPlayerState extends State<YuNiPlayer> with WidgetsBindingObserver {
   }
 
   void _onPlay() => widget.player.play();
+
   void _onPause() => widget.player.pause();
+
   void _onSeek(double seconds) => widget.player.seek(seconds);
 
   void _onSetRate(double rate) {
@@ -177,12 +179,8 @@ class _YuNiPlayerState extends State<YuNiPlayer> with WidgetsBindingObserver {
   }
 
   YuNiControlsContext _buildControlsContext() {
-    final data = widget.player.videoData;
     return YuNiControlsContext(
-      state: widget.player.state,
-      position: Duration(milliseconds: data.posMilli ?? 0),
-      duration: data.duration,
-      bufferPercent: data.bufferPercent,
+      player: widget.player,
       isFullscreen: _isFullscreen,
       isMuted: _isMuted,
       rate: _rate,
@@ -217,15 +215,18 @@ class _YuNiPlayerState extends State<YuNiPlayer> with WidgetsBindingObserver {
                 widget.loadingBuilder!(context),
               if (widget.errorBuilder != null &&
                   playerState == YuNiPlayerState.error)
-                widget.errorBuilder!(context, widget.player.videoData.lastError),
+                widget.errorBuilder!(
+                    context, widget.player.videoData.lastError),
               if (widget.controlsBuilder != null)
                 Positioned.fill(
-                  child: widget.controlsBuilder!(context, _buildControlsContext()),
+                  child:
+                      widget.controlsBuilder!(context, _buildControlsContext()),
                 )
               else if (widget.showDefaultControls)
                 Positioned.fill(
                   child: YuNiDefaultControls(
                     controls: _buildControlsContext(),
+                    padding: widget.fullscreenPadding,
                     extraActions: widget.extraControls,
                   ),
                 ),
@@ -395,7 +396,8 @@ class _FullscreenPageState extends State<_FullscreenPage> {
   }
 
   Widget _buildControls({required bool isLandscape}) {
-    final fsBuilder = widget.fullscreenControlsBuilder ?? widget.controlsBuilder;
+    final fsBuilder =
+        widget.fullscreenControlsBuilder ?? widget.controlsBuilder;
     if (fsBuilder != null) {
       return fsBuilder(context, widget.buildControlsContext());
     }
@@ -452,6 +454,7 @@ class _YuNiFullscreenControlsState extends State<YuNiFullscreenControls>
       duration: const Duration(milliseconds: 250),
       value: 1.0,
     );
+    widget.controls.player.addListener(_onPlayerUpdate);
     _scheduleHide();
   }
 
@@ -459,6 +462,7 @@ class _YuNiFullscreenControlsState extends State<YuNiFullscreenControls>
   void dispose() {
     _hideTimer?.cancel();
     _fadeCtrl.dispose();
+    widget.controls.player.removeListener(_onPlayerUpdate);
     super.dispose();
   }
 
@@ -470,6 +474,14 @@ class _YuNiFullscreenControlsState extends State<YuNiFullscreenControls>
         old.controls.state != widget.controls.state) {
       _scheduleHide();
     }
+    if (widget.controls.player != old.controls.player) {
+      old.controls.player.removeListener(_onPlayerUpdate);
+      widget.controls.player.addListener(_onPlayerUpdate);
+    }
+  }
+
+  void _onPlayerUpdate() {
+    if (mounted) setState(() {});
   }
 
   void _scheduleHide() {
@@ -532,8 +544,8 @@ class _YuNiFullscreenControlsState extends State<YuNiFullscreenControls>
                   const SizedBox(height: 8),
                   TextButton(
                     onPressed: c.onPlay,
-                    child: const Text('重试',
-                        style: TextStyle(color: Colors.white)),
+                    child:
+                        const Text('重试', style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),
@@ -546,7 +558,8 @@ class _YuNiFullscreenControlsState extends State<YuNiFullscreenControls>
                   padding: const EdgeInsets.all(16),
                   decoration: const BoxDecoration(
                       color: Colors.black54, shape: BoxShape.circle),
-                  child: const Icon(Icons.replay, color: Colors.white, size: 36),
+                  child:
+                      const Icon(Icons.replay, color: Colors.white, size: 36),
                 ),
               ),
             ),
@@ -564,7 +577,8 @@ class _YuNiFullscreenControlsState extends State<YuNiFullscreenControls>
                             colors: [Colors.transparent, bg],
                           ),
                         ),
-                        padding: widget.padding ?? const EdgeInsets.fromLTRB(8, 24, 8, 12),
+                        padding: widget.padding ??
+                            const EdgeInsets.fromLTRB(8, 24, 8, 12),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -591,7 +605,9 @@ class _YuNiFullscreenControlsState extends State<YuNiFullscreenControls>
                                 IconButton(
                                   onPressed: c.isPlaying ? c.onPause : c.onPlay,
                                   icon: Icon(
-                                    c.isPlaying ? Icons.pause : Icons.play_arrow,
+                                    c.isPlaying
+                                        ? Icons.pause
+                                        : Icons.play_arrow,
                                     color: primary,
                                   ),
                                 ),
@@ -777,8 +793,7 @@ class _RateButton extends StatelessWidget {
                 child: Text(
                   r == 1.0 ? '正常' : '${r}x',
                   style: TextStyle(
-                    fontWeight:
-                        r == rate ? FontWeight.bold : FontWeight.normal,
+                    fontWeight: r == rate ? FontWeight.bold : FontWeight.normal,
                     color: r == rate ? Theme.of(context).primaryColor : null,
                   ),
                 ),

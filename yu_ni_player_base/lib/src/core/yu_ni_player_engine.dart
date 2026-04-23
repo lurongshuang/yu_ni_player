@@ -17,8 +17,10 @@ typedef EngineBuilder = YuNiPlayerEngine Function(YuNiVideoSource source);
 /// 公开 API（[init]、[play]、[pause]、[seek]、[dispose]、[release]、[reset]）
 /// 采用模板方法模式，在基类中处理通用逻辑（状态守卫、状态转换），
 /// 具体实现委托给子类的 `perform*` 方法。
-abstract class YuNiPlayerEngine {
+abstract class YuNiPlayerEngine implements Listenable {
   YuNiPlayerEngine(this.videoSource);
+
+  final List<VoidCallback> _listeners = [];
 
   // ── 数据 ──────────────────────────────────────────────────────
 
@@ -245,13 +247,26 @@ abstract class YuNiPlayerEngine {
   /// 每个引擎自己提供渲染 Widget，消除 UI 层的 if-else 判断。
   Widget buildView();
 
-  // ── 监听器（抽象，子类实现）──────────────────────────────────
+  // ── 监听器（Listenable 实现） ──────────────────────────────────
 
-  /// 添加状态变化监听器（代理给底层 ChangeNotifier）
-  void addListener(VoidCallback listener);
+  @override
+  void addListener(VoidCallback listener) {
+    _listeners.add(listener);
+  }
 
-  /// 移除状态变化监听器
-  void removeListener(VoidCallback listener);
+  @override
+  void removeListener(VoidCallback listener) {
+    _listeners.remove(listener);
+  }
+
+  /// 通知所有监听器
+  @protected
+  void notifyListeners() {
+    if (_disposed) return;
+    for (final listener in List<VoidCallback>.from(_listeners)) {
+      listener();
+    }
+  }
 
   // ── 回调注册（抽象，子类实现）────────────────────────────────
 
