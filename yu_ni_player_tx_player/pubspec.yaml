@@ -1,6 +1,6 @@
 name: yu_ni_player_tx_player
 description: Tencent super_player engine implementation for yu_ni_player, suitable for mobile (iOS/Android) video playback.
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/lurongshuang/yu_ni_player/tree/main/yu_ni_player_tx_player
 repository: https://github.com/lurongshuang/yu_ni_player
 issue_tracker: https://github.com/lurongshuang/yu_ni_player/issues
@@ -18,8 +18,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  yu_ni_player_base:
-    path: ../yu_ni_player_base
+  yu_ni_player_base: ^1.0.1
   super_player: ^13.1.0
 
 dev_dependencies:

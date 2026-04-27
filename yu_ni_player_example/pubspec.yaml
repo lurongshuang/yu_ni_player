@@ -9,14 +9,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  yu_ni_player_base:
-    path: ../yu_ni_player_base
-  yu_ni_player_video_player_kit:
-    path: ../yu_ni_player_video_player_kit
-  yu_ni_player_tx_player:
-    path: ../yu_ni_player_tx_player
-  yu_ni_player_media_kit:
-    path: ../yu_ni_player_media_kit
+  yu_ni_player_base: ^1.0.1
+  yu_ni_player_video_player_kit: ^1.0.1
+  yu_ni_player_tx_player: ^1.0.1
+  yu_ni_player_media_kit: ^1.0.1
 
 dev_dependencies:
   flutter_test:

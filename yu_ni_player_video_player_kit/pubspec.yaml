@@ -1,6 +1,6 @@
 name: yu_ni_player_video_player_kit
 description: Flutter official video_player engine implementation for yu_ni_player, supporting multiple platforms including macOS, Windows, and Web.
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/lurongshuang/yu_ni_player/tree/main/yu_ni_player_video_player_kit
 repository: https://github.com/lurongshuang/yu_ni_player
 issue_tracker: https://github.com/lurongshuang/yu_ni_player/issues
@@ -19,8 +19,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  yu_ni_player_base:
-    path: ../yu_ni_player_base
+  yu_ni_player_base: ^1.0.1
   video_player: ^2.11.1
   video_player_win: ^3.2.2
 
