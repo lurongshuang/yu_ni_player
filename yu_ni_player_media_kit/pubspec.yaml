@@ -1,6 +1,6 @@
 name: yu_ni_player_media_kit
 description: media_kit engine implementation for yu_ni_player, providing high-performance video playback on Linux.
-version: 1.0.1
+version: 1.0.3
 homepage: https://github.com/lurongshuang/yu_ni_player/tree/main/yu_ni_player_media_kit
 repository: https://github.com/lurongshuang/yu_ni_player
 issue_tracker: https://github.com/lurongshuang/yu_ni_player/issues
@@ -12,13 +12,13 @@ topics:
   - media-kit
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
-  flutter: '>=3.10.0'
+  sdk: '>=3.9.2 <4.0.0'
+  flutter: ">=3.3.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  yu_ni_player_base: ^1.0.1
+  yu_ni_player_base: ^1.0.2
   media_kit: ^1.2.6
   media_kit_video: ^2.0.1
   media_kit_libs_video: ^1.0.7
