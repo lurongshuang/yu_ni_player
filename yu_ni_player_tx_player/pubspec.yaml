@@ -18,7 +18,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  yu_ni_player_base: ^1.0.2
+  yu_ni_player_base:
+    git:
+      url: https://git.uneed.com/unix/flugins/yu_ni_player.git
+      ref: 1.0.3
+      path: ./yu_ni_player_base
   super_player: ^13.1.0
 
 dev_dependencies:

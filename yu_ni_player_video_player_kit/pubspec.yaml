@@ -19,7 +19,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  yu_ni_player_base: ^1.0.2
+  yu_ni_player_base:
+    git:
+      url: https://git.uneed.com/unix/flugins/yu_ni_player.git
+      ref: 1.0.3
+      path: ./yu_ni_player_base
   video_player: ^2.10.1
   video_player_win: ^3.2.2
 
